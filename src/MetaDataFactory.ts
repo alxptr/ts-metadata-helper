@@ -9,19 +9,23 @@ export interface IAnnotationMetadataConfig {
 export interface IAnnotationMetadata extends Function {
 }
 
-export interface IPropertyAnnotation extends Function {
+export interface IDecorator extends Function {
+}
+
+export interface IAnnotation extends IDecorator {
     annotationMetadata:IAnnotationMetadata;
 }
 
-export interface IPropMetadataDefinition {
-    [index:string]:Array<Function>
+export type AnnotationType = {new():IAnnotation};
+
+export interface IMetadataDefinition {
+    [index:string]:Array<AnnotationType>
 }
 
-export function PropertyAnnotationFactory(annotationMetadata:IAnnotationMetadata):Function {
-
-    const PropertyAnnotation:Function = (config:IAnnotationMetadataConfig) => {
+export function PropertyAnnotationFactory(annotationMetadata:IAnnotationMetadata):IAnnotation {
+    const Decorator:Function = (config:IAnnotationMetadataConfig) => {
         return (target:Object, propertyKey:string) => {
-            const meta:IPropMetadataDefinition = Reflect.getOwnMetadata(PROP_METADATA, target.constructor) || {};
+            const meta:IMetadataDefinition = Reflect.getOwnMetadata(PROP_METADATA, target.constructor) || {};
 
             meta[propertyKey] = meta[propertyKey] || [];
             meta[propertyKey].push(Reflect.construct(annotationMetadata, [config]));
@@ -30,8 +34,9 @@ export function PropertyAnnotationFactory(annotationMetadata:IAnnotationMetadata
         };
     };
 
-    (PropertyAnnotation as IPropertyAnnotation).annotationMetadata = annotationMetadata;
-    return PropertyAnnotation;
+    const Annotation:IAnnotation = Decorator as IAnnotation;
+    Annotation.annotationMetadata = annotationMetadata;
+    return Annotation;
 }
 
 declare module Reflect {
