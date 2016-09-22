@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "types": [
+      "node",
+      "jasmine"
+    ]
+  },
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "exclude": [
+    "node_modules"
+  ]
+}
