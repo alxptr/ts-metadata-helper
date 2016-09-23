@@ -16,11 +16,14 @@ npm install ts-metadata-helper --save
 ## Use
 
 ```typescript
-import {Input, Output} from '@angular/core';
-import {PropertyAnnotationFactory, IAnnotation} from 'ts-metadata-helper';
+import {Input, Output, Component} from '@angular/core';
+import {PropertyAnnotationFactory, IAnnotation, MetadataHelper} from 'ts-metadata-helper/index';
+
+...
 
 class ViewFieldMetadata {
     configValue:number;
+
     constructor(config) {
         this.configValue = config.configValue;
     }
@@ -28,6 +31,9 @@ class ViewFieldMetadata {
 
 const ViewField:IAnnotation = PropertyAnnotationFactory(ViewFieldMetadata);
 
+@Component({
+    template: '<div>Template</div>'
+})
 class View {
     @ViewField({configValue: 100})
     private field1:string;
@@ -52,8 +58,12 @@ expect(Object.keys(MetadataHelper.findPropertyMetadata(viewInstance, Input))).to
 expect(Object.keys(MetadataHelper.findPropertyMetadata(viewInstance, Output))).toEqual(['field5']);
 
 const annotationMetadataHolder:IAnnotationMetadataHolder = MetadataHelper.findPropertyMetadata(viewInstance, ViewField);
-expect(annotationMetadataHolder['field1']['configValue']).toBe(100);
-expect(annotationMetadataHolder['field2']['configValue']).toBe(200);
+expect(Reflect.get(Reflect.get(annotationMetadataHolder, 'field1'), 'configValue')).toBe(100);
+expect(Reflect.get(Reflect.get(annotationMetadataHolder, 'field2'), 'configValue')).toBe(200);
+
+expect(
+    Reflect.get(MetadataHelper.findAnnotationsMetaData(View, Component)[0], 'template')
+).toEqual('<div>Template</div>');
 ```
 
 ## Publish
