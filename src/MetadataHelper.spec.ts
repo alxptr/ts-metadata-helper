@@ -1,4 +1,6 @@
-import {Input, Output} from '@angular/core';
+import 'core-js/es6/reflect';
+
+import {Input, Output, Component} from '@angular/core';
 
 import {PropertyAnnotationFactory, IAnnotation} from './MetadataFactory';
 
@@ -22,6 +24,9 @@ describe('MetadataHelper', ()=> {
 
             const ViewField:IAnnotation = PropertyAnnotationFactory(ViewFieldMetadata);
 
+            @Component({
+                template: '<div>Template</div>'
+            })
             class View {
                 @ViewField({configValue: 100})
                 private field1:string;
@@ -46,8 +51,12 @@ describe('MetadataHelper', ()=> {
             expect(Object.keys(MetadataHelper.findPropertyMetadata(viewInstance, Output))).toEqual(['field5']);
 
             const annotationMetadataHolder:IAnnotationMetadataHolder = MetadataHelper.findPropertyMetadata(viewInstance, ViewField);
-            expect(annotationMetadataHolder['field1']['configValue']).toBe(100);
-            expect(annotationMetadataHolder['field2']['configValue']).toBe(200);
+            expect(Reflect.get(Reflect.get(annotationMetadataHolder, 'field1'), 'configValue')).toBe(100);
+            expect(Reflect.get(Reflect.get(annotationMetadataHolder, 'field2'), 'configValue')).toBe(200);
+
+            expect(
+                Reflect.get(MetadataHelper.findAnnotationsMetaData(View, Component)[0], 'template')
+            ).toEqual('<div>Template</div>');
         });
     });
 });
