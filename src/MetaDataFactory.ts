@@ -1,3 +1,4 @@
+import 'core-js/es6/reflect';
 import 'core-js/es7/reflect';
 
 export const PROP_METADATA:string = 'propMetadata';
@@ -17,6 +18,7 @@ export interface IAnnotation extends IDecorator {
 }
 
 export type AnnotationType = {new():IAnnotation};
+export type DecoratorType = {new():IDecorator};
 
 export interface IMetadataDefinition {
     [index:string]:Array<AnnotationType>

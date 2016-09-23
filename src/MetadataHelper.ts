@@ -1,3 +1,4 @@
+import 'core-js/es6/reflect';
 import 'core-js/es7/reflect';
 
 import {Utils} from './Utils';
@@ -9,7 +10,8 @@ import {
     IMetadataDefinition,
     IAnnotation,
     IDecorator,
-    AnnotationType
+    AnnotationType,
+    DecoratorType
 } from './MetadataFactory';
 
 export interface IAnnotationMetadataHolder {
@@ -18,16 +20,23 @@ export interface IAnnotationMetadataHolder {
 
 export class MetadataHelper {
 
-    public static findAnnotationMetaData(target:Object, annotation:IDecorator):IAnnotationMetadataHolder {
-        return MetadataHelper.findMetadata(target, annotation, ANNOTATIONS_METADATA);
+    public static findAnnotationsMetaData(target:Object, annotation:IDecorator):Array<DecoratorType> {
+        return MetadataHelper.findMetadata(target, annotation, ANNOTATIONS_METADATA) as Array<DecoratorType>;
     }
 
     public static findPropertyMetadata(target:Object, annotation:IDecorator):IAnnotationMetadataHolder {
-        return MetadataHelper.findMetadata(target, annotation, PROP_METADATA);
+        return MetadataHelper.findMetadata(target, annotation, PROP_METADATA) as IAnnotationMetadataHolder;
     }
 
-    public static findMetadata(target:Object, annotation:IDecorator, metadataName:string):IAnnotationMetadataHolder {
-        const metadataDefinition:IMetadataDefinition = Reflect.getMetadata(metadataName, target.constructor);
+    public static findMetadata(target:Object, annotation:IDecorator, metadataName:string):IAnnotationMetadataHolder|Array<DecoratorType> {
+        const metadataDefinition:IMetadataDefinition|Array<DecoratorType> = Reflect.getMetadata(
+            metadataName,
+            target.constructor === Function ? target : target.constructor
+        );
+
+        if (Utils.isArray(metadataDefinition)) {
+            return metadataDefinition as Array<DecoratorType>;
+        }
 
         let annotationMetadataInstance:IAnnotationMetadata;
         let annotationMetadataHolder:IAnnotationMetadataHolder = {} as IAnnotationMetadataHolder;
@@ -46,7 +55,7 @@ export class MetadataHelper {
                 }
             });
         }
-        return annotationMetadataHolder;
+        return annotationMetadataHolder as IAnnotationMetadataHolder;
     }
 }
 
