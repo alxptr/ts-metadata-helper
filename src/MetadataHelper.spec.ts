@@ -57,6 +57,10 @@ describe('MetadataHelper', ()=> {
             expect(
                 Reflect.get(MetadataHelper.findAnnotationsMetaData(View, Component)[0], 'template')
             ).toEqual('<div>Template</div>');
+
+            class WithoutAnnotations {
+            }
+            expect(MetadataHelper.findAnnotationsMetaData(WithoutAnnotations, Component).length).toBe(0);
         });
     });
 });

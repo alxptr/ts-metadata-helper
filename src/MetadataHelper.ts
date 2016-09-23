@@ -28,34 +28,36 @@ export class MetadataHelper {
         return MetadataHelper.findMetadata(target, annotation, PROP_METADATA) as IAnnotationMetadataHolder;
     }
 
-    public static findMetadata(target:Object, annotation:IDecorator, metadataName:string):IAnnotationMetadataHolder|Array<DecoratorType> {
+    private static findMetadata(target:Object, annotation:IDecorator, metadataName:string):IAnnotationMetadataHolder|Array<DecoratorType> {
+        const annotationsSearch:boolean = target.constructor === Function;
+
         const metadataDefinition:IMetadataDefinition|Array<DecoratorType> = Reflect.getMetadata(
             metadataName,
-            target.constructor === Function ? target : target.constructor
+            annotationsSearch ? target : target.constructor
         );
 
-        if (Utils.isArray(metadataDefinition)) {
-            return metadataDefinition as Array<DecoratorType>;
+        if (annotationsSearch) {
+            return (metadataDefinition || []) as Array<DecoratorType>;
+        } else {
+            let annotationMetadataInstance:IAnnotationMetadata;
+            let annotationMetadataHolder:IAnnotationMetadataHolder = {} as IAnnotationMetadataHolder;
+
+            if (Utils.isPresent(metadataDefinition)) {
+                Reflect.ownKeys(metadataDefinition).forEach((propertyKey:string) => {
+
+                    const predicate:{(value:AnnotationType)} = (annotationInstance:AnnotationType):boolean => {
+                        const annotationMetadata:IAnnotationMetadata = (annotation as IAnnotation).annotationMetadata;
+                        return annotationInstance instanceof annotation // Angular2 annotations support
+                            || (Utils.isPresent(annotationMetadata) && annotationInstance instanceof annotationMetadata)
+                    };
+
+                    if (annotationMetadataInstance = metadataDefinition[propertyKey].find(predicate)) {
+                        Reflect.set(annotationMetadataHolder, propertyKey, annotationMetadataInstance);
+                    }
+                });
+            }
+            return annotationMetadataHolder as IAnnotationMetadataHolder;
         }
-
-        let annotationMetadataInstance:IAnnotationMetadata;
-        let annotationMetadataHolder:IAnnotationMetadataHolder = {} as IAnnotationMetadataHolder;
-
-        if (Utils.isPresent(metadataDefinition)) {
-            Reflect.ownKeys(metadataDefinition).forEach((propertyKey:string) => {
-
-                const predicate:{(value:AnnotationType)} = (annotationInstance:AnnotationType):boolean => {
-                    const annotationMetadata:IAnnotationMetadata = (annotation as IAnnotation).annotationMetadata;
-                    return annotationInstance instanceof annotation // Angular2 annotations support
-                        || (Utils.isPresent(annotationMetadata) && annotationInstance instanceof annotationMetadata)
-                };
-
-                if (annotationMetadataInstance = metadataDefinition[propertyKey].find(predicate)) {
-                    Reflect.set(annotationMetadataHolder, propertyKey, annotationMetadataInstance);
-                }
-            });
-        }
-        return annotationMetadataHolder as IAnnotationMetadataHolder;
     }
 }
 
