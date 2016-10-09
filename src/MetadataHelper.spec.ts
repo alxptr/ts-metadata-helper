@@ -1,5 +1,3 @@
-import 'core-js/es6/reflect';
-
 import {Input, Output, Component} from '@angular/core';
 
 import {PropertyAnnotationFactory, IAnnotation} from './MetadataFactory';

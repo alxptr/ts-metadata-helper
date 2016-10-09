@@ -1,6 +1,3 @@
-import 'core-js/es6/reflect';
-import 'core-js/es7/reflect';
-
 export const PROP_METADATA:string = 'propMetadata';
 export const ANNOTATIONS_METADATA:string = 'annotations';
 
