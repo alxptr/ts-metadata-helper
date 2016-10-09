@@ -6,6 +6,10 @@ An implementation of wrapper ES7 reflect metadata at TypeScript 2.0.
 
 Compatible with the **Angular 2.0.0** annotations.  
 
+## Dependencies
+
+* [core-js](https://www.npmjs.com/package/core-js)  
+
 ## Installation
 
 First you need to install the npm module:
